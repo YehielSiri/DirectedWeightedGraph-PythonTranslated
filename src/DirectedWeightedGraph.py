@@ -1,12 +1,30 @@
-class GraphInterface:
-    """This abstract class represents an interface of a graph."""
+from abc import ABC
+from collections import defaultdict
 
-    def v_size(self) -> int:
-        """
-        Returns the number of vertices in this graph
-        @return: The number of vertices in this graph
-        """
-        raise NotImplementedError
+from Node import Node
+
+from GraphInteface import GraphInterface
+
+
+
+class DirectedWeightedGraph(ABC, GraphInterface):
+
+	def __init__(self):
+		self.DirectedWeightedGraph = dict()
+		self.num_vertices = 0
+		self.Mc = 0
+		self.edge_size = 0
+
+	def __iter__(self):
+		return iter(self.DirectedWeightedGraph.values())
+
+	def v_size(self) -> int:
+		return self.num_vertices
+	"""
+	Returns the number of vertices in this graph
+	@return: The number of vertices in this graph
+	"""
+	raise NotImplementedError
 
     def e_size(self) -> int:
         """
