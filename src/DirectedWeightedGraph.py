@@ -18,6 +18,16 @@ class DirectedWeightedGraph(ABC, GraphInterface):
 	def __iter__(self):
 		return iter(self.DirectedWeightedGraph.values())
 
+	def get_vertex(self, n):
+		if n in self.DirectedWeightedGraph:
+			return self.DirectedWeightedGraph[n]
+		else:
+			return None
+	"""
+	get a node if the node exist in the graph, else, return None
+	"""
+
+
 	def v_size(self) -> int:
 		return self.num_vertices
 	"""
@@ -99,13 +109,13 @@ class DirectedWeightedGraph(ABC, GraphInterface):
 
 	def add_node(self, node_id: int, pos: tuple = None) -> bool:
 		x = False
-		if node_id in self.Graph_DW:
+		if node_id in self.DirectedWeightedGraph:
 			return x
 		x = True
 		self.num_vertices = self.num_vertices + 1
 		new_Node = Node(node_id, pos)
 		self.Mc = self.Mc + 1
-		self.Graph_DW[node_id] = new_Node
+		self.DirectedWeightedGraph[node_id] = new_Node
 
 		return x
 
@@ -119,22 +129,22 @@ class DirectedWeightedGraph(ABC, GraphInterface):
 
     def remove_node(self, node_id: int) -> bool:
 		bool1 = False
-		if node_id not in self.Graph_DW:
+		if node_id not in self.DirectedWeightedGraph:
 			return bool1
 
 		if len(self.get_vertex(node_id).Ni_node_in )> 0:
-			for node in self.Graph_DW[node_id].Ni_node_in.keys():
-				self.Graph_DW[node].Ni_node_out.pop(node_id)
+			for node in self.DirectedWeightedGraph[node_id].Ni_node_in.keys():
+				self.DirectedWeightedGraph[node].Ni_node_out.pop(node_id)
 				self.edge_size -= 1
 
 		if len(self.get_vertex(node_id).Ni_node_out) > 0:
-			for node in self.Graph_DW[node_id].Ni_node_out.keys():
-				self.Graph_DW[node].Ni_node_in.pop(node_id)
+			for node in self.DirectedWeightedGraph[node_id].Ni_node_out.keys():
+				self.DirectedWeightedGraph[node].Ni_node_in.pop(node_id)
 				self.edge_size -= 1
 
 		self.Mc += 1
 		self.num_vertices = self.num_vertices - 1
-		self.Graph_DW.pop(node_id)
+		self.DirectedWeightedGraph.pop(node_id)
 		return bool1
 
 	"""
@@ -150,10 +160,10 @@ class DirectedWeightedGraph(ABC, GraphInterface):
 		if self.get_vertex(node_id1) is None or self.get_vertex(node_id2) is None or node_id1 == node_id2:
 			return boolRemove
 
-		if node_id1 not in self.Graph_DW:
+		if node_id1 not in self.DirectedWeightedGraph:
 			return boolRemove
 
-		if node_id2 not in self.Graph_DW:
+		if node_id2 not in self.DirectedWeightedGraph:
 			return boolRemove
 		if node_id1 not in self.get_vertex(node_id2).Ni_node_in or node_id2 not in self.get_vertex(node_id1).Ni_node_out:
 			return boolRemove
@@ -174,4 +184,40 @@ class DirectedWeightedGraph(ABC, GraphInterface):
 	Note: If such an edge does not exists the function will do nothing
 	"""
 
+"""
+Auxiliary functions:
+"""
 
+	def __str__(self):
+		out_str = 'DirectedWeightedGraph:(|V|=' + str(self.v_size()) + ',' + '|E|=' + str(self.e_size()) + ')'
+		for node in self.DirectedWeightedGraph:
+			out_str += '{' + 'Node :' + 'key-> ' + node.__str__() + '},'
+		return out_str
+
+	def __contains__(self, key):
+		return key in self.DirectedWeightedGraph.keys()
+
+	def __iter__(self):
+		return iter(self.DirectedWeightedGraph.values())
+
+	def get_vertex_list(self) -> list:
+		list1 = []
+		dict1 = self.get_all_v()
+		for i in dict1:
+			list1.append(dict1.get(i))
+		return list1
+
+	def get_vertices(self):
+		ordered_vertices = {}
+		for vertex in self.DirectedWeightedGraph:
+			ordered_vertices[vertex] = str(self.DirectedWeightedGraph[vertex].id) + '->' + ' |edges out|: ' + str(
+				self.DirectedWeightedGraph[vertex].Ni_node_out) + ',' + str(self.DirectedWeightedGraph[vertex].id) + '<-' + '|edges in|: ' + str(
+				self.DirectedWeightedGraph[vertex].Ni_node_in)
+
+		return ordered_vertices
+	"""
+	Returns a dict of nodes representing the vertices in the graph, in dict order
+	"""
+
+	def __repr__(self):
+		return self.__str__()
