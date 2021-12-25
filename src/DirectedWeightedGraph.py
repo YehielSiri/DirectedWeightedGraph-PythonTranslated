@@ -7,7 +7,7 @@ from GraphInteface import GraphInterface
 
 
 
-class DirectedWeightedGraph(ABC, GraphInterface):
+class DiGraph(ABC, GraphInterface):
 
 	def __init__(self):
 		self.DirectedWeightedGraph = dict()

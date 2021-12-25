@@ -1,7 +1,7 @@
 import random
 
 
-class Node:
+class NodeData:
 	"""
 	init the Node
 	"""
