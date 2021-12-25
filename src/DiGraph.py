@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from Node import Node
 
-from GraphInteface import GraphInterface
+from GraphInterface import GraphInterface
 
 
 class DiGraph(ABC, GraphInterface):
@@ -191,10 +191,8 @@ class DiGraph(ABC, GraphInterface):
 
 
 
-"""
-Auxiliary functions:
-"""
 
+    """Auxiliary functions"""
     def __str__(self):
         out_str = 'DiGraph:(|V|=' + str(self.v_size()) + ',' + '|E|=' + str(self.e_size()) + ')'
         for node in self.Graph_DW:
@@ -222,9 +220,7 @@ Auxiliary functions:
                 self.Graph_DW[vertex].Ni_node_in)
 
         return ordered_vertices
-
         """Returns a dict of nodes representing the vertices in the graph, in dict order"""
-
 
     def __repr__(self):
         return self.__str__()
