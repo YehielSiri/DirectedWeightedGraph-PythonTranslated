@@ -149,6 +149,15 @@ class GraphAlgo(GraphAlgoInterface):
         :return: A list of the nodes id's in the path, and the overall distance
         """
     def TSP(self, node_lst: List[int]) -> (List[int], float):
+        start = time.time()
+        solution = self.tsp(node_lst)
+        if solution is None:
+            return None, -1
+        solutionCopy = copy.deepcopy(solution)
+        cost = self.pathWeight(solutionCopy)
+        # print("TSP has calculated in ", time.time() - start, "seconds with weight:", cost)
+        return solution, cost
+        # return self.fixPath(node_lst, solution), cost
 
 
         """
@@ -156,6 +165,33 @@ class GraphAlgo(GraphAlgoInterface):
         :return: The nodes id, min-maximum distance. If there is no center (an unconnected graph), return None,float('inf').
         """
     def centerPoint(self) -> (int, float):
+        if self.is_connected():
+            min1 = sys.float_info.max
+            node_id = -1
+            for k in self.graphAlgo.get_all_v():
+                curr_node = k
+                max1 = sys.float_info.min
+                for v in self.graphAlgo.get_all_v():
+                    if v == k:  # same node, no need to check again.
+                        continue
+                    next_node = v
+                    tmp_dijk = self.shortest_path(curr_node, next_node)
+                    tmp = tmp_dijk[1]
+                    if tmp_dijk[0] is not INF:
+                        if tmp > max1:
+                            max1 = tmp
+                        if tmp > min1:
+                            # we want Minimum of all maximums
+                            break
+
+                if min1 > max1:
+                    min1 = max1
+                    node_id = k
+
+            return node_id, min1
+        else:
+            return False
+
 
 
 
@@ -250,6 +286,177 @@ class GraphAlgo(GraphAlgoInterface):
                 node_return = self.graphAlgo.get_vertex(curr)
 
         return node_return
+
+    """
+        TSP auxiliary functions
+    """
+
+    def pathWeight(self, path: list[int]):
+        path.reverse()
+        ans = 0
+        prevV = path.pop()
+        while path:
+            nextV = path.pop()
+            ans += self.cost(prevV, nextV)
+            prevV = nextV
+        return ans
+
+    def cost(self, node, neighbor):
+        if node == neighbor:
+            return 0.0
+        neighbors = self.graphAlgo.all_out_edges_of_node(node)
+        if len(neighbors) > 0:
+            return neighbors.get(neighbor)
+        return sys.float_info.max
+
+        """
+        Compute heuristically a path for TSP problem (variation of: can repeat visits)
+        :param cities: list of nodes to visit
+        :return: an ordered path
+        """
+    def tsp(self, cities: list[int]) -> List[int]:
+        currentCity = cities.pop()
+        path = [currentCity]
+
+        while len(cities) > 0:
+
+            if len(cities) == 1:
+                last_city = cities.pop()
+                temp = self.shortest_path(path[-1], last_city)
+                if temp[0] == INF:
+                    return None
+                path_to_rel = tuple(temp)
+                path_to_rel = path_to_rel[0]
+                path_to_rel.reverse()
+                path_to_rel.pop()
+                while path_to_rel:
+                    t = path_to_rel.pop()
+                    path.append(t)
+                    if t in cities:
+                        cities.remove(t)
+                    if len(cities) == 0:
+                        break
+                # to_visit.remove(min(to_visit))
+                continue
+
+            try:
+                currentCity = self.getCheapestNeighbour(path[-1])  # arr[-1] accesses last member of array
+            except:
+                currentCity = -1
+
+            if currentCity in cities:
+                cities.remove(currentCity)
+
+
+            if currentCity == -1:
+                temp = self.shortest_path(path[-1], cities.pop())
+                if temp[0] == INF:
+                    return None
+                path_to_rel = tuple(temp)
+                path_to_rel = path_to_rel[0]
+                path_to_rel.reverse()
+                path_to_rel.pop()
+                while path_to_rel:
+                    t = path_to_rel.pop()
+                    path.append(t)
+                    if t in cities:
+                        cities.remove(t)
+                    if len(cities) == 0:
+                        break
+                # to_visit.remove(min(to_visit))
+                continue
+
+
+            if len(path) >= 2:
+                if path[-2] == currentCity:
+                    # path_to_rel = self.shortest_path(path[-1], cities.pop())
+                    temp = self.shortest_path(path[-1], cities.pop())
+                    if temp[0] == INF:
+                        return None
+                    path_to_rel = tuple(temp)
+                    path_to_rel: list = path_to_rel[0]
+                    path_to_rel.reverse()
+                    path_to_rel.pop()
+                    while path_to_rel:
+                        t = path_to_rel.pop()
+                        path.append(t)
+                        if t in cities:
+                            cities.remove(t)
+                        if len(cities) == 0:
+                            break
+                    continue
+
+            path.append(currentCity)
+        return path
+
+        """
+        Return the cheapest neighbor of a current vertex.
+        :param node: the current vertex's key.
+        :return: the cheapest neighbor's key. -1 if there are no neighbors
+        """
+    def getCheapestNeighbour(self, node):
+        neighbors = self.graphAlgo.all_out_edges_of_node(node)
+        if len(neighbors) == 0:
+            return -1
+        cheapest = sys.float_info.max
+        for neighbor in neighbors:
+            cost = self.cost(node, neighbor)
+            if cost < cheapest:
+                cheapest = cost
+                cheapestNeighbor = neighbor
+        return cheapestNeighbor
+
+    """
+        TSP auxiliary functions
+    """
+
+        """
+        Checks if the graph is connected or not.
+        :return: True if yes, False else.
+        """
+    def is_connected(self) -> bool:
+        vertices = self.graphAlgo.get_all_v()
+        for vertex in vertices:
+            if not self.BFS(vertex):
+                return False
+        return True
+
+    """
+    BFS algorithm implementation to check if graph is connected.
+    That implementation is of GeeksForGeeks but improved and adapted to a direct graph.
+    The source is in link https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/
+    """
+    def BFS(self, src: int) -> bool:
+        # Mark all the vertices as not visited
+        isVisited = [False] * (self.graphAlgo.v_size())
+
+        # Create a queue for BFS
+        queue = []
+
+        # Create a queue for the visited vertices
+        isVisited = []
+
+        # Mark the source node as visited and enqueue it
+        queue.append(src)
+        isVisited[src] = True
+        visited.append(src)
+
+        while len(queue) > 0:
+
+            # Pop a vertex from queue
+            currentNode = queue.pop(0)
+
+            # Add currentNode's neighbors which were still not visited
+            neighborsOut = self.graphAlgo.all_out_edges_of_node(currentNode)
+            for neighbor in neighborsOut:
+                if not isVisited[neighbor]:
+                    queue.append(neighbor)
+                    isVisited[neighbor] = True
+                    visited.append(neighbor)
+        return len(visited) == len(self.graphAlgo.get_all_v())
+
+
+
 
 
 
