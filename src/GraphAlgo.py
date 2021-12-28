@@ -200,7 +200,7 @@ class GraphAlgo(GraphAlgoInterface):
 
 
 
-"""Auxiliary functions"""
+    """Auxiliary functions"""
     def open_graph(self, file_name):
         Mygraph = DiGraph()
 
@@ -291,7 +291,7 @@ class GraphAlgo(GraphAlgoInterface):
         TSP auxiliary functions
     """
 
-    def pathWeight(self, path: list[int]):
+    def pathWeight(self, path: list):
         path.reverse()
         ans = 0
         prevV = path.pop()
@@ -314,7 +314,7 @@ class GraphAlgo(GraphAlgoInterface):
         :param cities: list of nodes to visit
         :return: an ordered path
         """
-    def tsp(self, cities: list[int]) -> List[int]:
+    def tsp(self, cities: list) -> List:
         currentCity = cities.pop()
         path = [currentCity]
 
@@ -410,10 +410,10 @@ class GraphAlgo(GraphAlgoInterface):
         TSP auxiliary functions
     """
 
-        """
-        Checks if the graph is connected or not.
-        :return: True if yes, False else.
-        """
+    """
+    Checks if the graph is connected or not.
+    :return: True if yes, False else.
+    """
     def is_connected(self) -> bool:
         vertices = self.graphAlgo.get_all_v()
         for vertex in vertices:
@@ -428,13 +428,13 @@ class GraphAlgo(GraphAlgoInterface):
     """
     def BFS(self, src: int) -> bool:
         # Mark all the vertices as not visited
-        isVisited = [False] * (self.graphAlgo.v_size())
+        isVisited = [False] * len(self.graphAlgo.get_all_v())
 
         # Create a queue for BFS
         queue = []
 
         # Create a queue for the visited vertices
-        isVisited = []
+        visited = []
 
         # Mark the source node as visited and enqueue it
         queue.append(src)
@@ -465,11 +465,11 @@ class GraphAlgo(GraphAlgoInterface):
 
 
     """
-           Plots the graph.
-           If the nodes have a position, the nodes will be placed there.
-           Otherwise, they will be placed in a random but elegant manner.
-           @return: None
-           """
+    Plots the graph.
+    If the nodes have a position, the nodes will be placed there.
+    Otherwise, they will be placed in a random but elegant manner.
+    @return: None
+    """
 
     def plot_graph(self) -> None:
         self.runGui()
@@ -535,3 +535,68 @@ class GraphAlgo(GraphAlgoInterface):
             dict1 = self.graphAlgo.get_vertex(n).Ni_node_out
             for i in dict1:
                 self.draw_edge(n, i)
+
+    def connected_components(self) -> List[list]:
+
+        result = []
+        for i in self.graphAlgo.get_vertices():
+            res = self.connected_component(i)
+            if res not in result:
+                result.append(res)
+        return result
+
+    """
+    Returns a list of id's representing the vertices in the graph, in ascending order
+    """
+    def get_vertices1(self):
+        ordered_vertices = []
+        for vertex in self.graphAlgo.DirectedWeightedGraph:
+            ordered_vertices.append(self.graphAlgo.DirectedWeightedGraph[vertex].id)
+        return sorted(ordered_vertices)
+
+    """
+    Finds the Strongly Connected Component(SCC) that node id1 is a part of.
+    @param id1: The node id
+    @return: The list of nodes in the SCC
+    """
+
+    def connected_component(self, id1: int) -> list:
+        visited = []
+        answer = []
+        # visiteDFS = []
+        visiteDFS = self.DFS(id1)
+        visiteDFS.remove(self.graphAlgo.get_vertex(id1))
+        if len(self.graphAlgo.get_vertex(id1).Ni_node_out) == 0:
+            return [id1]
+        else:
+            for node in visiteDFS:
+                if node not in visited:
+
+                    DFS_algo = self.DFS(node.id)
+
+                    if self.graphAlgo.get_vertex(id1) in DFS_algo:
+                        answer.append(node.id)
+                    visited.append(node)
+
+        answer.append(id1)
+
+        answer.sort()
+
+        return answer
+
+    """
+    DFS Algorithem
+    @return: None
+    """
+
+    def DFS(self, start_node):
+        visited = []
+        stack = [self.graphAlgo.get_vertex(start_node)]
+        while stack:
+            v = stack.pop()
+            if v not in visited:
+                visited.append(v)
+                if v is not None:
+                    for neighbor in v.Ni_node_out:
+                        stack.append(self.graphAlgo.get_vertex(neighbor))
+        return visited
