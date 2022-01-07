@@ -17,6 +17,10 @@ __init__(node, pos) - init the node; its position, its neighbors in & out etc.
 __iter__() - return an iterator to the neighbors
 __repr__() - return a string representation of the node by __str__() (an auxiliary function )
 __str__() - return node as string
+get_id() - return this node's key
+get_weight(neighbor) - return the weight on the edge is which out of this node to the neighbor which is given
+getNi() - return all the neighbors into this node
+get_weightIn(neighbor) - return the weight on the edge is which in to this node from the neighbor which is given
 
 DiGraph:
 
